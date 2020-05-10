@@ -62,7 +62,7 @@ ZhiMiDCVFFanFanAccessory.prototype.getServices = function() {
 
     var fanService = new Service.Fanv2(this.name);
     var activeCharacteristic = fanService.getCharacteristic(Characteristic.Active);
-    var lockPhysicalControlsCharacteristic = fanService.addCharacteristic(Characteristic.LockPhysicalControls);
+    var swingModeControlsCharacteristic = fanService.addCharacteristic(Characteristic.SwingMode);
     var rotationSpeedCharacteristic = fanService.addCharacteristic(Characteristic.RotationSpeed);
     var rotationDirectionCharacteristic = fanService.addCharacteristic(Characteristic.RotationDirection);
 
