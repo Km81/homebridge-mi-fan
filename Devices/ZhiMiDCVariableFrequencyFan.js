@@ -211,33 +211,6 @@ ZhiMiDCVFFanFanAccessory.prototype.getServices = function() {
     
     services.push(fanService);
 
-    var batteryService = new Service.BatteryService();
-    var batLowCharacteristic = batteryService.getCharacteristic(Characteristic.StatusLowBattery);
-    var batLevelCharacteristic = batteryService.getCharacteristic(Characteristic.BatteryLevel);
-    batLevelCharacteristic
-        .on('get', function(callback) {
-            that.device.call("get_prop", ["battery"]).then(result => {
-                that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiDCVFFanFanAccessory - Battery - getLevel: " + result);
-                batLowCharacteristic.updateValue(result[0] < 20 ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);
-                callback(null, result[0]);
-            }).catch(function(err) {
-                that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiDCVFFanFanAccessory - Battery - getLevel Error: " + err);
-                callback(err);
-            });
-        }.bind(this));
-    var batChargingStateCharacteristic = batteryService.getCharacteristic(Characteristic.ChargingState);
-    batChargingStateCharacteristic
-        .on('get', function(callback) {
-            that.device.call("get_prop", ["ac_power"]).then(result => {
-                that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiDCVFFanFanAccessory - Battery - getChargingState: " + result);
-                callback(null, result[0] === "on" ? Characteristic.ChargingState.CHARGING : Characteristic.ChargingState.NOT_CHARGING);
-            }).catch(function(err) {
-                that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiDCVFFanFanAccessory - Battery - getChargingState Error: " + err);
-                callback(err);
-            });
-        }.bind(this));
-    services.push(batteryService);
-
     return services;
 }
 
