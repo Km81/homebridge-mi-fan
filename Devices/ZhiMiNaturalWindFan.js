@@ -62,13 +62,10 @@ ZhiMiFWFanFanAccessory.prototype.getServices = function() {
 
     var fanService = new Service.Fanv2(this.name);
     var activeCharacteristic = fanService.getCharacteristic(Characteristic.Active);
-    var lockPhysicalControlsCharacteristic = fanService.addCharacteristic(Characteristic.LockPhysicalControls);
     var swingModeControlsCharacteristic = fanService.addCharacteristic(Characteristic.SwingMode);
     var rotationSpeedCharacteristic = fanService.addCharacteristic(Characteristic.RotationSpeed);
     var rotationDirectionCharacteristic = fanService.addCharacteristic(Characteristic.RotationDirection);
     
-    var currentTemperatureCharacteristic = fanService.addCharacteristic(Characteristic.CurrentTemperature);
-    var currentRelativeHumidityCharacteristic = fanService.addCharacteristic(Characteristic.CurrentRelativeHumidity);
 
     // power
     activeCharacteristic
@@ -96,31 +93,6 @@ ZhiMiFWFanFanAccessory.prototype.getServices = function() {
             });
         }.bind(this));
     
-    // child_lock
-    lockPhysicalControlsCharacteristic
-        .on('get', function(callback) {
-            that.device.call("get_prop", ["child_lock"]).then(result => {
-                that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiFWFanFanAccessory - LockPhysicalControls - getLockPhysicalControls: " + result);
-                callback(null, result[0] === "on" ? Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED : Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED);
-            }).catch(function(err) {
-                that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiFWFanFanAccessory - LockPhysicalControls - getLockPhysicalControls Error: " + err);
-                callback(err);
-            });
-        }.bind(this))
-        .on('set', function(value, callback) {
-            that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiFWFanFanAccessory - LockPhysicalControls - setLockPhysicalControls: " + value);
-            that.device.call("set_child_lock", [value ? "on" : "off"]).then(result => {
-                that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiFWFanFanAccessory - LockPhysicalControls - setLockPhysicalControls Result: " + result);
-                if(result[0] === "ok") {
-                    callback(null);
-                } else {
-                    callback(new Error(result[0]));
-                }            
-            }).catch(function(err) {
-                that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiFWFanFanAccessory - LockPhysicalControls - setLockPhysicalControls Error: " + err);
-                callback(err);
-            });
-        }.bind(this));
         
     // angle_enable
     swingModeControlsCharacteristic
@@ -238,25 +210,6 @@ ZhiMiFWFanFanAccessory.prototype.getServices = function() {
             }
         }.bind(this));
 
-    currentTemperatureCharacteristic.on('get', function(callback) {
-        this.device.call("get_prop", ["temp_dec"]).then(result => {
-            that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiFWFanFanAccessory - Temperature - getTemperature: " + result);
-            callback(null, result[0] / 10);
-        }).catch(function(err) {
-            that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiFWFanFanAccessory - Temperature - getTemperature Error: " + err);
-            callback(err);
-        });
-    }.bind(this));
-        
-    currentRelativeHumidityCharacteristic.on('get', function(callback) {
-        this.device.call("get_prop", ["humidity"]).then(result => {
-            that.platform.log.debug("[MiFanPlatform][DEBUG]ZhiMiFWFanFanAccessory - Humidity - getHumidity: " + result);
-            callback(null, result[0]);
-        }).catch(function(err) {
-            that.platform.log.error("[MiFanPlatform][ERROR]ZhiMiFWFanFanAccessory - Humidity - getHumidity Error: " + err);
-            callback(err);
-        });
-    }.bind(this));
     services.push(fanService);
 
     return services;
